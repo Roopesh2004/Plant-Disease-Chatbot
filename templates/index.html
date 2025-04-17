@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Disease Chatbot</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+                Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(to bottom right, #f0fdf4, #d1fae5);
+            padding: 1rem;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 64rem;
+            margin: 0 auto;
+        }
+
+        /* Header styles */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .header p {
+            color: #4b5563;
+        }
+
+        /* Grid layout */
+        .grid {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Card styles */
+        .card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            border: 2px dashed #6ee7b7;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            border-color: #34d399;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .input-text {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-text:focus {
+            border-color: #34d399;
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+        }
+
+        .button {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            background-color: #059669;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .button:hover:not(:disabled) {
+            background-color: #047857;
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Result styles */
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f0fdf4;
+            border-radius: 0.5rem;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .result h3 {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .result p {
+            color: #047857;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Icon styles */
+        .icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .icon-large {
+            width: 3rem;
+            height: 3rem;
+            margin-right: 0.75rem;
+            color: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <!-- Leaf icon -->
+                <svg class="icon icon-large" viewBox="0 0 24 24">
+                    <path d="M21 3v5c0 7.18-5.82 13-13 13S1 15.18 1 8v-5"></path>
+                    <path d="M21 3h-5c-7.18 0-13 5.82-13 13s5.82 13 13 13h5"></path>
+                </svg>
+                <h1>Plant Disease Chatbot</h1>
+            </div>
+            <p>Upload a plant image and ask questions about detected diseases</p>
+        </div>
+
+        <div class="grid">
+            <!-- Upload Section -->
+            <div class="card">
+                <h2>Disease Detection</h2>
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <input type="file" id="fileInput" class="file-input" accept="image/*">
+                        <label for="fileInput" class="file-input-label">
+                            <!-- Upload icon -->
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <span id="fileLabel">Choose an image</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="button" id="predictButton" disabled>
+                        Detect Disease
+                    </button>
+                </form>
+                <div id="predictionResult" style="display: none;" class="result">
+                    <h3>Detected Disease:</h3>
+                    <p id="predictionText"></p>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="card">
+                <h2>Ask Questions</h2>
+                <form id="questionForm">
+                    <div class="form-group">
+                        <input
+                            type="text"
+                            id="questionInput"
+                            class="input-text"
+                            placeholder="Ask about the detected disease..."
+                            disabled
+                        >
+                    </div>
+                    <button type="submit" class="button" disabled>
+                        <!-- Send icon -->
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                        Ask Question
+                    </button>
+                </form>
+                <div id="responseResult" style="display: none;" class="result">
+                    <h3>Response:</h3>
+                    <p id="responseText"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // File input handling
+        const fileInput = document.getElementById('fileInput');
+        const fileLabel = document.getElementById('fileLabel');
+        const predictButton = document.getElementById('predictButton');
+        const predictionResult = document.getElementById('predictionResult');
+        const predictionText = document.getElementById('predictionText');
+        const questionInput = document.getElementById('questionInput');
+        const responseResult = document.getElementById('responseResult');
+        const responseText = document.getElementById('responseText');
+        const askButton = document.querySelector('#questionForm button');
+    
+        // Store the detected disease
+        let detectedDisease = '';
+    
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                fileLabel.textContent = this.files[0].name;
+                predictButton.disabled = false;
+            } else {
+                fileLabel.textContent = 'Choose an image';
+                predictButton.disabled = true;
+            }
+        });
+    
+        // Upload form submission
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+    
+            // Simulate loading state
+            predictButton.disabled = true;
+            predictButton.textContent = 'Analyzing...';
+    
+            try {
+                // Send the image to the backend for prediction
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+    
+                if (data.predicted_class) {
+                    detectedDisease = data.predicted_class;
+                    predictionText.textContent = detectedDisease;
+                    predictionResult.style.display = 'block';
+    
+                    // Enable the question input and button
+                    questionInput.disabled = false;
+                    askButton.disabled = false;
+                } else {
+                    alert('Error detecting disease. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            } finally {
+                // Reset the predict button
+                predictButton.textContent = 'Detect Disease';
+                predictButton.disabled = false;
+            }
+        });
+    
+        // Question form submission
+        document.getElementById('questionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const question = questionInput.value;
+    
+            // Simulate loading state
+            askButton.disabled = true;
+            askButton.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>Thinking...';
+    
+            try {
+                // Send the question to the backend
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        disease_name: detectedDisease,
+                        question: question
+                    })
+                });
+                const data = await response.json();
+    
+                if (data.response) {
+                    responseText.textContent = data.response;
+                    responseResult.style.display = 'block';
+                } else {
+                    alert('Error fetching response. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            } finally {
+                // Reset the ask button
+                askButton.disabled = false;
+                askButton.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>Ask Question';
+            }
+        });
+    </script>
+    
+</body>
+</html>
