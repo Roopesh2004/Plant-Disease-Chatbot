@@ -29,7 +29,7 @@ model = load_model(r"D:\New folder\best_model.keras")  # Replace with the path t
 # Initialize the OpenAI client
 client = OpenAI(
     base_url="https://integrate.api.nvidia.com/v1",
-    api_key="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"
+    api_key="nvapi-"
 )
 
 # Function to predict and display the image
